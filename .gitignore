@@ -10,7 +10,9 @@ __pycache__/
 bin/
 build/
 develop-eggs/
-dist/
+!dist/
+dist/*
+!dist/main.exe
 downloads/
 eggs/
 .eggs/
