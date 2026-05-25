@@ -25,8 +25,10 @@ class Checkpoint(pygame.sprite.Sprite):
         self.active = False
         
     def draw(self, surface, camera_offset_x):
+        from assets import GLOBAL_OFFSETS
         draw_rect = self.rect.copy()
         draw_rect.x -= camera_offset_x
+        draw_rect.y += GLOBAL_OFFSETS.get('checkpoint', 0)
         # Sit exactly on the ground, no sinking
         surface.blit(IMAGES['checkpoint'], draw_rect)
         
@@ -51,8 +53,10 @@ class Beacon(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, 80, 120)
         
     def draw(self, surface, camera_offset_x):
+        from assets import GLOBAL_OFFSETS
         draw_rect = self.rect.copy()
         draw_rect.x -= camera_offset_x
+        draw_rect.y += GLOBAL_OFFSETS.get('beacon', 0)
         # Sit exactly on the ground, no sinking
         surface.blit(IMAGES['beacon'], draw_rect)
         
@@ -74,6 +78,51 @@ def generate_level():
     birds = pygame.sprite.Group()
     beacon = None
     
+    # Try to load custom level design from level_data.json first
+    import json
+    import os
+    from assets import resource_path
+    data_path = resource_path('Assets/level_data.json')
+    if os.path.exists(data_path):
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                saved_data = json.load(f)
+                
+            # Load platforms
+            for p_data in saved_data.get('platforms', []):
+                platforms.add(Platform(p_data['x'], p_data['y'], p_data['width'], p_data['height']))
+                
+            # Load checkpoints
+            for cp_data in saved_data.get('checkpoints', []):
+                checkpoints.add(Checkpoint(cp_data['x'], cp_data['y'], cp_data['text_id'], cp_data['text_content']))
+                
+            # Load monkeys
+            for m_data in saved_data.get('monkeys', []):
+                monkeys.add(import_enemy("monkey", m_data['x'], m_data['y']))
+                
+            # Load birds
+            for b_data in saved_data.get('birds', []):
+                birds.add(import_enemy("bird", b_data['x'], b_data['y']))
+                
+            # Load beacon
+            b_data = saved_data.get('beacon')
+            if b_data:
+                beacon = Beacon(b_data['x'], b_data['y'])
+                
+            # If successfully loaded, return!
+            if len(platforms) > 0 and beacon is not None:
+                # Ensure boundary left wall is present
+                if not any(p.rect.x == -50 for p in platforms):
+                    platforms.add(Platform(-50, 0, 50, 1000))
+                return platforms, checkpoints, monkeys, birds, beacon
+        except Exception as e:
+            print(f"Warning: Failed to load level layout from JSON: {e}")
+            platforms.empty()
+            checkpoints.empty()
+            monkeys.empty()
+            birds.empty()
+            beacon = None
+
     # 15km simulation (long level layout)
     
     # Start area
@@ -84,57 +133,57 @@ def generate_level():
     
     # Section 1: Introduction to jumps and gaps
     platforms.add(Platform(920, 600, 400, 200))
-    platforms.add(Platform(1440, 500, 300, 300))
-    monkeys.add(import_enemy("monkey", 1540, 460))
+    platforms.add(Platform(1400, 520, 300, 300))
+    monkeys.add(import_enemy("monkey", 1500, 480))
     
     # Section 2: Climb
-    platforms.add(Platform(1860, 400, 200, 400))
-    platforms.add(Platform(2180, 300, 200, 500))
-    birds.add(import_enemy("bird", 2280, 100))
+    platforms.add(Platform(1880, 420, 200, 400))
+    platforms.add(Platform(2200, 290, 250, 500))
+    birds.add(import_enemy("bird", 2300, 100))
     
     # Checkpoint 2
-    checkpoints.add(Checkpoint(2230, 172, 2, "A selva ficou mais densa. Mas você ainda está de pé."))
+    checkpoints.add(Checkpoint(2250, 162, 2, "A selva ficou mais densa. Mas você ainda está de pé."))
     
     # Section 3: Longer gaps and multiple enemies
-    platforms.add(Platform(2500, 400, 500, 400))
-    monkeys.add(import_enemy("monkey", 2600, 360))
-    monkeys.add(import_enemy("monkey", 2800, 360))
+    platforms.add(Platform(2530, 410, 500, 400))
+    monkeys.add(import_enemy("monkey", 2630, 370))
+    monkeys.add(import_enemy("monkey", 2830, 370))
     
-    platforms.add(Platform(3120, 500, 400, 300))
-    birds.add(import_enemy("bird", 3320, 200))
+    platforms.add(Platform(3230, 480, 350, 300))
+    birds.add(import_enemy("bird", 3350, 180))
     
     # Checkpoint 3
-    platforms.add(Platform(3640, 600, 600, 200))
-    checkpoints.add(Checkpoint(3840, 472, 3, "Metade do caminho. A segunda metade é pior."))
+    platforms.add(Platform(3700, 580, 600, 200))
+    checkpoints.add(Checkpoint(3900, 452, 3, "Metade do caminho. A segunda metade é pior."))
     
     # Section 4: Verticality and mix
-    platforms.add(Platform(4360, 500, 200, 300))
-    platforms.add(Platform(4680, 400, 200, 400))
-    platforms.add(Platform(5000, 300, 200, 500))
-    birds.add(import_enemy("bird", 4800, 150))
-    monkeys.add(import_enemy("monkey", 5050, 260))
+    platforms.add(Platform(4400, 460, 200, 300))
+    platforms.add(Platform(4700, 380, 200, 400))
+    platforms.add(Platform(5020, 250, 200, 500))
+    birds.add(import_enemy("bird", 4820, 100))
+    monkeys.add(import_enemy("monkey", 5070, 210))
     
-    platforms.add(Platform(5320, 600, 800, 200))
+    platforms.add(Platform(5300, 560, 800, 200))
     
     # Checkpoint 4
-    checkpoints.add(Checkpoint(5620, 472, 4, "Você pode ouvir eles. Eles já te ouviram faz tempo."))
+    checkpoints.add(Checkpoint(5600, 432, 4, "Você pode ouvir eles. Eles já te ouviram faz tempo."))
     
     # Section 5: The final stretch
-    platforms.add(Platform(6240, 500, 300, 300))
-    monkeys.add(import_enemy("monkey", 6340, 460))
+    platforms.add(Platform(6220, 480, 300, 300))
+    monkeys.add(import_enemy("monkey", 6320, 440))
     
-    platforms.add(Platform(6660, 400, 300, 400))
+    platforms.add(Platform(6660, 380, 300, 400))
     birds.add(import_enemy("bird", 6810, 100))
     
-    platforms.add(Platform(7080, 300, 300, 500))
-    monkeys.add(import_enemy("monkey", 7180, 260))
+    platforms.add(Platform(7100, 250, 300, 500))
+    monkeys.add(import_enemy("monkey", 7200, 210))
     
     # Final Checkpoint
-    platforms.add(Platform(7500, 400, 600, 400))
-    checkpoints.add(Checkpoint(7600, 272, 5, "O sinalizador está perto. Não deixe a Terra saber disso."))
+    platforms.add(Platform(7620, 380, 600, 400))
+    checkpoints.add(Checkpoint(7720, 252, 5, "O sinalizador está perto. Não deixe a Terra saber disso."))
     
     # The Beacon
-    beacon = Beacon(7900, 280)
+    beacon = Beacon(8020, 260)
     
     # Add bounds
     platforms.add(Platform(-50, 0, 50, 1000)) # Left wall

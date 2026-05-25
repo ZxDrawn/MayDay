@@ -168,3 +168,74 @@ class UI:
         btn = self.button_font.render("[ VOLTAR AO MENU ]", True, COLOR_TEXT)
         self.vic_rect = btn.get_rect(center=(WINDOW_WIDTH//2, 550))
         surface.blit(btn, self.vic_rect)
+
+    def draw_editor_hud(self, surface, selected_entity, selection_type, offsets_dict, save_success_timer=0):
+        # Draw dark border/panel at top
+        panel_rect = pygame.Rect(0, 0, WINDOW_WIDTH, 140)
+        panel_surf = pygame.Surface((panel_rect.width, panel_rect.height))
+        panel_surf.fill((10, 15, 25))
+        panel_surf.set_alpha(220)
+        surface.blit(panel_surf, panel_rect)
+        pygame.draw.line(surface, (0, 180, 216), (0, 140), (WINDOW_WIDTH, 140), 2)
+        
+        # Title
+        title_surf = self.subtitle_font.render("MODO EDITOR DE NÍVEL & ALTURAS", True, (0, 180, 216))
+        surface.blit(title_surf, (20, 15))
+        
+        # Instructions
+        inst = [
+            "• CLIQUE E ARRASTE elementos (Plataformas, Checkpoints, Beacon, Inimigos, Jogador)",
+            "• SETAS CIMA / BAIXO: Ajusta a altura (Y-Offset) visual do elemento selecionado",
+            "• ENTER: Salvar no arquivo level_data.json  |  TECLA E: Voltar ao Jogo"
+        ]
+        
+        y_offset = 55
+        for line in inst:
+            line_surf = self.text_font.render(line, True, (200, 200, 220))
+            surface.blit(line_surf, (20, y_offset))
+            y_offset += 25
+            
+        # Selection info panel (on the right)
+        info_rect = pygame.Rect(WINDOW_WIDTH - 450, 10, 430, 120)
+        pygame.draw.rect(surface, (20, 28, 42), info_rect)
+        pygame.draw.rect(surface, (0, 180, 216), info_rect, 1)
+        
+        if selected_entity:
+            name_surf = self.subtitle_font.render(f"Selecionado: {selection_type}", True, (255, 255, 100))
+            surface.blit(name_surf, (WINDOW_WIDTH - 430, 20))
+            
+            x_y_surf = self.text_font.render(f"Posição Spawn: X={selected_entity.rect.x}, Y={selected_entity.rect.y}", True, COLOR_TEXT)
+            surface.blit(x_y_surf, (WINDOW_WIDTH - 430, 55))
+            
+            # Show Y offset if applicable
+            offset_key = None
+            if selection_type == "Player": offset_key = "player"
+            elif selection_type == "Monkey": offset_key = "monkey_stand"
+            elif selection_type == "Bird": offset_key = "bird"
+            elif selection_type == "Checkpoint": offset_key = "checkpoint"
+            elif selection_type == "Beacon": offset_key = "beacon"
+            
+            if offset_key and offset_key in offsets_dict:
+                offset_val = offsets_dict[offset_key]
+                offset_surf = self.text_font.render(f"Ajuste Sprite Y-Offset: {offset_val}px (Setas Cima/Baixo)", True, (100, 255, 100))
+                surface.blit(offset_surf, (WINDOW_WIDTH - 430, 85))
+            else:
+                desc_surf = self.text_font.render("Plataforma física (sem offset de imagem)", True, (180, 180, 180))
+                surface.blit(desc_surf, (WINDOW_WIDTH - 430, 85))
+        else:
+            empty_surf = self.subtitle_font.render("Nenhum item selecionado", True, (150, 150, 150))
+            surface.blit(empty_surf, (WINDOW_WIDTH - 410, 35))
+            desc_surf = self.text_font.render("Clique em um item para arrastar ou calibrar", True, (150, 150, 150))
+            surface.blit(desc_surf, (WINDOW_WIDTH - 410, 70))
+            
+        # Success message overlay
+        current_time = pygame.time.get_ticks()
+        if save_success_timer > 0 and current_time - save_success_timer < 2500:
+            success_bg = pygame.Surface((WINDOW_WIDTH, 50))
+            success_bg.fill((10, 80, 40))
+            success_bg.set_alpha(200)
+            surface.blit(success_bg, (0, 142))
+            
+            success_surf = self.subtitle_font.render("NÍVEL E OFFSETS SALVOS COM SUCESSO EM Assets/level_data.json! 💾", True, (100, 255, 100))
+            success_rect = success_surf.get_rect(center=(WINDOW_WIDTH//2, 167))
+            surface.blit(success_surf, success_rect)

@@ -4,9 +4,87 @@ import os
 from settings import WINDOW_WIDTH, WINDOW_HEIGHT
 
 IMAGES = {}
+SOUNDS = {}
+GLOBAL_OFFSETS = {
+    'player': 0,
+    'monkey_stand': -14,
+    'monkey_walk': -10,
+    'monkey_attack': -14,
+    'bird': -5,
+    'checkpoint': 0,
+    'beacon': 0
+}
+
+class SafeSound:
+    """ A wrapper around pygame.mixer.Sound to handle missing or failed sound loads gracefully. """
+    def __init__(self, filename):
+        self.sound = None
+        self.filename = filename
+        path = resource_path(os.path.join('Assets/Sounds', filename))
+        if pygame.mixer.get_init():
+            if os.path.exists(path):
+                try:
+                    self.sound = pygame.mixer.Sound(path)
+                except Exception as e:
+                    print(f"Warning: Failed to load sound {filename}: {e}")
+            else:
+                # Silently ignore missing files
+                pass
+
+    def play(self, loops=0, maxtime=0, fade_ms=0):
+        if self.sound:
+            try:
+                return self.sound.play(loops, maxtime, fade_ms)
+            except Exception:
+                pass
+        return None
+
+    def stop(self):
+        if self.sound:
+            try:
+                self.sound.stop()
+            except Exception:
+                pass
+
+    def set_volume(self, volume):
+        if self.sound:
+            try:
+                self.sound.set_volume(volume)
+            except Exception:
+                pass
+
+def play_bgm(filename, volume=0.4):
+    """ Loads and plays a background music track seamlessly, checking if it is already playing. """
+    if pygame.mixer.get_init():
+        path = resource_path(os.path.join('Assets/Sounds', filename))
+        if os.path.exists(path):
+            try:
+                if pygame.mixer.music.get_busy():
+                    return
+                pygame.mixer.music.load(path)
+                pygame.mixer.music.set_volume(volume)
+                pygame.mixer.music.play(-1) # Loop indefinitely
+            except Exception as e:
+                print(f"Warning: Failed to play BGM {filename}: {e}")
+        else:
+            # Silent fallback
+            pass
+
+def stop_bgm():
+    """ Safely stops the background music if mixer is initialized. """
+    if pygame.mixer.get_init():
+        try:
+            pygame.mixer.music.stop()
+        except Exception:
+            pass
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
+    # Prioritize local file if it exists next to the executable/script
+    local_path = os.path.join(os.path.abspath("."), relative_path)
+    if os.path.exists(local_path):
+        return local_path
+
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
@@ -15,6 +93,35 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 def load_assets():
+    # Load offsets from JSON if it exists
+    import json
+    data_path = resource_path('Assets/level_data.json')
+    if os.path.exists(data_path):
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                saved_data = json.load(f)
+                if 'offsets' in saved_data:
+                    GLOBAL_OFFSETS.update(saved_data['offsets'])
+        except Exception as e:
+            print(f"Warning: Failed to load level_data offsets: {e}")
+
+    # Initialize mixer if not already initialized with optimized low-latency settings
+    if not pygame.mixer.get_init():
+        try:
+            pygame.mixer.init(44100, -16, 2, 512)
+        except Exception as e:
+            print(f"Warning: Could not initialize pygame mixer: {e}")
+
+    # Load Sound Effects
+    SOUNDS['jump'] = SafeSound('jump.wav')
+    SOUNDS['light_attack'] = SafeSound('light_attack.wav')
+    SOUNDS['heavy_attack'] = SafeSound('heavy_attack.wav')
+    SOUNDS['player_damage'] = SafeSound('player_damage.wav')
+    SOUNDS['enemy_damage'] = SafeSound('enemy_damage.wav')
+    SOUNDS['monkey_attack'] = SafeSound('monkey_attack.wav')
+    SOUNDS['bird_attack'] = SafeSound('bird_attack.wav')
+    SOUNDS['checkpoint'] = SafeSound('checkpoint.wav')
+    SOUNDS['beacon'] = SafeSound('beacon.wav')
     # Background
     bg_path = resource_path('Assets/Background.png')
     if os.path.exists(bg_path):
@@ -110,3 +217,70 @@ def load_assets():
         surf = pygame.Surface(beacon_size)
         surf.fill((50, 50, 80))
         IMAGES['beacon'] = surf
+
+def save_level_data(platforms, checkpoints, monkeys, birds, beacon):
+    """ Saves platforms, checkpoints, monkeys, birds, beacon coordinates and global offsets to level_data.json. """
+    import json
+    # Gather platforms
+    platform_list = []
+    for p in platforms:
+        platform_list.append({
+            'x': p.rect.x,
+            'y': p.rect.y,
+            'width': p.rect.width,
+            'height': p.rect.height
+        })
+        
+    # Gather checkpoints
+    checkpoint_list = []
+    for cp in checkpoints:
+        checkpoint_list.append({
+            'x': cp.rect.x,
+            'y': cp.rect.y,
+            'text_id': cp.text_id,
+            'text_content': cp.text_content
+        })
+        
+    # Gather monkeys
+    monkey_list = []
+    for m in monkeys:
+        monkey_list.append({
+            'x': m.patrol_anchor,
+            'y': m.rect.y
+        })
+        
+    # Gather birds
+    bird_list = []
+    for b in birds:
+        bird_list.append({
+            'x': b.patrol_anchor_x,
+            'y': b.patrol_anchor_y
+        })
+        
+    # Gather beacon
+    beacon_data = {
+        'x': beacon.rect.x,
+        'y': beacon.rect.y
+    }
+    
+    # Bundle everything
+    level_data = {
+        'offsets': GLOBAL_OFFSETS,
+        'platforms': platform_list,
+        'checkpoints': checkpoint_list,
+        'monkeys': monkey_list,
+        'birds': bird_list,
+        'beacon': beacon_data
+    }
+    
+    # Save to file
+    try:
+        os.makedirs('Assets', exist_ok=True)
+        # Save to local Assets folder
+        with open('Assets/level_data.json', 'w', encoding='utf-8') as f:
+            json.dump(level_data, f, indent=4, ensure_ascii=False)
+        print("Level and Offsets data successfully saved to Assets/level_data.json!")
+        return True
+    except Exception as e:
+        print(f"Error saving level data: {e}")
+        return False
