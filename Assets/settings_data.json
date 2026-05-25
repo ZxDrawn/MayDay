@@ -1,0 +1,10 @@
+{
+    "resolution": {
+        "width": 1920,
+        "height": 1080
+    },
+    "fullscreen": true,
+    "volume": 0.5461538461538461,
+    "show_fps": true,
+    "dev_mode": true
+}

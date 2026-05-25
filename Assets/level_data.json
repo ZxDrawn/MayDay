@@ -1,0 +1,195 @@
+{
+    "offsets": {
+        "player": 11,
+        "monkey_stand": -11,
+        "monkey_walk": -7,
+        "monkey_attack": -11,
+        "bird": -5,
+        "checkpoint": 45,
+        "beacon": 16
+    },
+    "platforms": [
+        {
+            "x": 0,
+            "y": 600,
+            "width": 800,
+            "height": 200
+        },
+        {
+            "x": 920,
+            "y": 600,
+            "width": 400,
+            "height": 200
+        },
+        {
+            "x": 1400,
+            "y": 520,
+            "width": 300,
+            "height": 300
+        },
+        {
+            "x": 1880,
+            "y": 420,
+            "width": 200,
+            "height": 400
+        },
+        {
+            "x": 2200,
+            "y": 290,
+            "width": 250,
+            "height": 500
+        },
+        {
+            "x": 2530,
+            "y": 410,
+            "width": 500,
+            "height": 400
+        },
+        {
+            "x": 3230,
+            "y": 480,
+            "width": 350,
+            "height": 300
+        },
+        {
+            "x": 3700,
+            "y": 580,
+            "width": 600,
+            "height": 200
+        },
+        {
+            "x": 4400,
+            "y": 460,
+            "width": 200,
+            "height": 300
+        },
+        {
+            "x": 4700,
+            "y": 380,
+            "width": 200,
+            "height": 400
+        },
+        {
+            "x": 5020,
+            "y": 250,
+            "width": 200,
+            "height": 500
+        },
+        {
+            "x": 5300,
+            "y": 560,
+            "width": 800,
+            "height": 200
+        },
+        {
+            "x": 6220,
+            "y": 480,
+            "width": 300,
+            "height": 300
+        },
+        {
+            "x": 6660,
+            "y": 380,
+            "width": 300,
+            "height": 400
+        },
+        {
+            "x": 7100,
+            "y": 250,
+            "width": 300,
+            "height": 500
+        },
+        {
+            "x": 7620,
+            "y": 380,
+            "width": 600,
+            "height": 400
+        },
+        {
+            "x": -50,
+            "y": 0,
+            "width": 50,
+            "height": 1000
+        }
+    ],
+    "checkpoints": [
+        {
+            "x": 500,
+            "y": 472,
+            "text_id": 1,
+            "text_content": "Você ainda está vivo. Por enquanto."
+        },
+        {
+            "x": 2250,
+            "y": 162,
+            "text_id": 2,
+            "text_content": "A selva ficou mais densa. Mas você ainda está de pé."
+        },
+        {
+            "x": 3900,
+            "y": 452,
+            "text_id": 3,
+            "text_content": "Metade do caminho. A segunda metade é pior."
+        },
+        {
+            "x": 5600,
+            "y": 432,
+            "text_id": 4,
+            "text_content": "Você pode ouvir eles. Eles já te ouviram faz tempo."
+        },
+        {
+            "x": 7720,
+            "y": 252,
+            "text_id": 5,
+            "text_content": "O sinalizador está perto. Não deixe a Terra saber disso."
+        }
+    ],
+    "monkeys": [
+        {
+            "x": 1626,
+            "y": 480
+        },
+        {
+            "x": 2630,
+            "y": 370
+        },
+        {
+            "x": 2830,
+            "y": 370
+        },
+        {
+            "x": 5176,
+            "y": 210
+        },
+        {
+            "x": 6320,
+            "y": 440
+        },
+        {
+            "x": 7200,
+            "y": 210
+        }
+    ],
+    "birds": [
+        {
+            "x": 2300,
+            "y": 100
+        },
+        {
+            "x": 3350,
+            "y": 180
+        },
+        {
+            "x": 4820,
+            "y": 100
+        },
+        {
+            "x": 6810,
+            "y": 100
+        }
+    ],
+    "beacon": {
+        "x": 8020,
+        "y": 260
+    }
+}
