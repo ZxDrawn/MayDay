@@ -73,7 +73,8 @@ def main():
     
     clock = pygame.time.Clock()
 
-    state = "MENU" # MENU, STORY, PLAYING, GAME_OVER, VICTORY, SETTINGS
+    state = "MENU" # MENU, STORY, PLAYING, GAME_OVER, VICTORY, SETTINGS, PAUSED
+    settings_back_state = "MENU"
     ui = UI()
 
     player = None
@@ -139,11 +140,24 @@ def main():
                         state = "STORY"
                     elif clicked == "CONFIGURAÇÕES":
                         state = "SETTINGS"
+                        settings_back_state = "MENU"
                         volume_dragging = False
                     elif clicked == "SAIR":
                         stop_bgm()
                         pygame.quit()
                         sys.exit()
+                elif state == "PAUSED":
+                    clicked = ui.get_pause_click(mouse_pos)
+                    if clicked == "CONTINUAR":
+                        state = "PLAYING"
+                        play_bgm('bgm.ogg', settings.MASTER_VOLUME)
+                    elif clicked == "CONFIGURAÇÕES":
+                        state = "SETTINGS"
+                        settings_back_state = "PAUSED"
+                        volume_dragging = False
+                    elif clicked == "VOLTAR AO MENU":
+                        state = "MENU"
+                        stop_bgm()
                 elif state == "STORY":
                     start_game()
                     state = "PLAYING"
@@ -189,7 +203,7 @@ def main():
                                 settings.DEV_MODE = not settings.DEV_MODE
                             elif label == "VOLTAR":
                                 save_settings()
-                                state = "MENU"
+                                state = settings_back_state
                     
                     # Handle volume slider press
                     if ui.slider_rect.collidepoint(mouse_pos):
@@ -269,6 +283,14 @@ def main():
                     start_game(load_from_checkpoint=True)
                     state = "PLAYING"
                 
+                # Toggle Pause Menu with ESC
+                if state == "PLAYING" and event.key == pygame.K_ESCAPE:
+                    state = "PAUSED"
+                    play_bgm('bgm.ogg', settings.MASTER_VOLUME * 0.3)
+                elif state == "PAUSED" and event.key == pygame.K_ESCAPE:
+                    state = "PLAYING"
+                    play_bgm('bgm.ogg', settings.MASTER_VOLUME)
+                
                 # Toggle Editor Mode
                 if state == "PLAYING" and event.key == pygame.K_e:
                     if settings.DEV_MODE:
@@ -323,47 +345,48 @@ def main():
         elif state == "STORY":
             ui.draw_story(screen)
             
-        elif state == "PLAYING":
-            # Start BGM if not already playing with configured MASTER_VOLUME
-            play_bgm('bgm.ogg', settings.MASTER_VOLUME)
-            # Update entities
-            enemies = pygame.sprite.Group()
-            enemies.add(*monkeys)
-            enemies.add(*birds)
-            
-            player.update(keys, mouse_buttons, platforms, enemies)
-            
-            for m in monkeys:
-                m.update(player, platforms)
-            for b in birds:
-                b.update(player, platforms)
+        elif state == "PLAYING" or state == "PAUSED":
+            if state == "PLAYING":
+                # Start BGM if not already playing with configured MASTER_VOLUME
+                play_bgm('bgm.ogg', settings.MASTER_VOLUME)
+                # Update entities
+                enemies = pygame.sprite.Group()
+                enemies.add(*monkeys)
+                enemies.add(*birds)
+                
+                player.update(keys, mouse_buttons, platforms, enemies)
+                
+                for m in monkeys:
+                    m.update(player, platforms)
+                for b in birds:
+                    b.update(player, platforms)
 
-            # Camera logic
-            target_camera_x = player.rect.centerx - settings.WINDOW_WIDTH // 2
-            # Simple lerp for smooth camera
-            camera_offset_x += (target_camera_x - camera_offset_x) * 0.1
-            
-            # Don't let camera go left of level start
-            if camera_offset_x < 0:
-                camera_offset_x = 0
+                # Camera logic
+                target_camera_x = player.rect.centerx - settings.WINDOW_WIDTH // 2
+                # Simple lerp for smooth camera
+                camera_offset_x += (target_camera_x - camera_offset_x) * 0.1
+                
+                # Don't let camera go left of level start
+                if camera_offset_x < 0:
+                    camera_offset_x = 0
 
-            # Checkpoints
-            for cp in checkpoints:
-                if not cp.active and player.rect.colliderect(cp.rect):
-                    cp.active = True
-                    respawn_pos = (cp.rect.x, cp.rect.y - 60)
-                    ui.show_lore(cp.text_content)
-                    SOUNDS['checkpoint'].play()
-                    
-            # Beacon collision
-            if player.rect.colliderect(beacon.rect):
-                state = "VICTORY"
-                SOUNDS['beacon'].play()
-                stop_bgm()
+                # Checkpoints
+                for cp in checkpoints:
+                    if not cp.active and player.rect.colliderect(cp.rect):
+                        cp.active = True
+                        respawn_pos = (cp.rect.x, cp.rect.y - 60)
+                        ui.show_lore(cp.text_content)
+                        SOUNDS['checkpoint'].play()
+                        
+                # Beacon collision
+                if player.rect.colliderect(beacon.rect):
+                    state = "VICTORY"
+                    SOUNDS['beacon'].play()
+                    stop_bgm()
 
-            # Death
-            if player.is_dead:
-                state = "GAME_OVER"
+                # Death
+                if player.is_dead:
+                    state = "GAME_OVER"
 
             # Rendering
             screen.blit(IMAGES['bg'], (0, 0))
@@ -393,6 +416,10 @@ def main():
                 fps_text = ui.text_font.render(f"FPS: {int(clock.get_fps())}", True, (46, 196, 182))
                 # draw on top right corner
                 screen.blit(fps_text, (settings.WINDOW_WIDTH - fps_text.get_width() - 30, 70))
+
+            # Pause Overlay
+            if state == "PAUSED":
+                ui.draw_pause_menu(screen)
 
         elif state == "EDITOR":
             # Camera scroll inside Editor Mode

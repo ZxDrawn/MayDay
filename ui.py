@@ -433,3 +433,54 @@ class UI:
             success_surf = self.subtitle_font.render("NÍVEL E OFFSETS SALVOS COM SUCESSO EM Assets/level_data.json! 💾", True, (100, 255, 100))
             success_rect = success_surf.get_rect(center=(w//2, 167))
             surface.blit(success_surf, success_rect)
+
+    def draw_pause_menu(self, surface):
+        w, h = settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT
+        
+        # Semi-transparent dark blur overlay
+        overlay = pygame.Surface((w, h), pygame.SRCALPHA)
+        overlay.fill((8, 10, 15, 180)) # dark background overlay
+        surface.blit(overlay, (0, 0))
+        
+        # Tech border card panel in the center
+        panel_surf = pygame.Surface((440, 380), pygame.SRCALPHA)
+        pygame.draw.rect(panel_surf, (15, 20, 30, 240), (0, 0, 440, 380), border_radius=12)
+        pygame.draw.rect(panel_surf, (0, 180, 216, 80), (0, 0, 440, 380), 2, border_radius=12)
+        
+        # Draw tech corner decorations inside panel
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, 20), (0, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, 0), (20, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (440, 20), (440, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (440, 0), (420, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, 360), (0, 380), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, 380), (20, 380), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (440, 360), (440, 380), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (440, 380), (420, 380), 4)
+        
+        panel_rect = panel_surf.get_rect(center=(w//2, h//2))
+        surface.blit(panel_surf, panel_rect)
+        
+        # Panel Title
+        title_surf = self.sec_title_font.render("PAUSADO", True, (0, 180, 216))
+        surface.blit(title_surf, title_surf.get_rect(center=(w//2, h//2 - 120)))
+        
+        mouse_pos = pygame.mouse.get_pos()
+        self.pause_rects = {}
+        
+        # Capsule buttons
+        options = [
+            ("CONTINUAR", h//2 - 40),
+            ("CONFIGURAÇÕES", h//2 + 30),
+            ("VOLTAR AO MENU", h//2 + 100)
+        ]
+        
+        for text, y in options:
+            rect = self.draw_button(surface, text, w//2, y, 320, 48, mouse_pos)
+            self.pause_rects[text] = rect
+
+    def get_pause_click(self, mouse_pos):
+        if not hasattr(self, 'pause_rects'): return None
+        for text, rect in self.pause_rects.items():
+            if rect.collidepoint(mouse_pos):
+                return text
+        return None
