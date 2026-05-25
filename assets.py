@@ -1,7 +1,7 @@
 import pygame
 import sys
 import os
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT
+import settings
 
 IMAGES = {}
 SOUNDS = {}
@@ -92,7 +92,44 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
+def download_font(filename, url):
+    """ Downloads a font from a URL into Assets/Fonts if it doesn't exist. """
+    font_dir = 'Assets/Fonts'
+    font_path = os.path.join(font_dir, filename)
+    if not os.path.exists(font_path):
+        try:
+            os.makedirs(font_dir, exist_ok=True)
+            import urllib.request
+            print(f"Downloading premium font {filename} from Google Fonts...")
+            req = urllib.request.Request(
+                url, 
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            )
+            with urllib.request.urlopen(req) as response:
+                with open(font_path, 'wb') as out_file:
+                    out_file.write(response.read())
+            print(f"Font {filename} successfully downloaded!")
+        except Exception as e:
+            print(f"Warning: Failed to download font {filename}: {e}")
+    return font_path
+
+def set_master_volume(volume):
+    """ Sets the volume for background music and all active sound effects. """
+    import settings
+    settings.MASTER_VOLUME = volume
+    if pygame.mixer.get_init():
+        try:
+            pygame.mixer.music.set_volume(volume)
+        except Exception:
+            pass
+        for s in SOUNDS.values():
+            s.set_volume(volume)
+
 def load_assets():
+    # Download premium fonts if missing
+    download_font('Orbitron-Bold.ttf', 'https://github.com/google/fonts/raw/main/ofl/orbitron/static/Orbitron-Bold.ttf')
+    download_font('Rajdhani-Medium.ttf', 'https://github.com/google/fonts/raw/main/ofl/rajdhani/Rajdhani-Medium.ttf')
+
     # Load offsets from JSON if it exists
     import json
     data_path = resource_path('Assets/level_data.json')
@@ -122,22 +159,25 @@ def load_assets():
     SOUNDS['bird_attack'] = SafeSound('bird_attack.wav')
     SOUNDS['checkpoint'] = SafeSound('checkpoint.wav')
     SOUNDS['beacon'] = SafeSound('beacon.wav')
+    # Apply master volume
+    set_master_volume(settings.MASTER_VOLUME)
+    
     # Background
     bg_path = resource_path('Assets/Background.png')
     if os.path.exists(bg_path):
-        bg_img = pygame.transform.scale(pygame.image.load(bg_path).convert(), (WINDOW_WIDTH, WINDOW_HEIGHT))
+        bg_img = pygame.transform.scale(pygame.image.load(bg_path).convert(), (settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT))
         # Create a vertical gradient mask to dim the background and highlight the player/enemies
-        gradient = pygame.Surface((1, WINDOW_HEIGHT), pygame.SRCALPHA)
-        for y in range(WINDOW_HEIGHT):
+        gradient = pygame.Surface((1, settings.WINDOW_HEIGHT), pygame.SRCALPHA)
+        for y in range(settings.WINDOW_HEIGHT):
             # Alpha goes from 210 at the top (very dark) to 120 at the bottom (moderately dark)
-            alpha = int(215 - (y / WINDOW_HEIGHT) * 95)
+            alpha = int(215 - (y / settings.WINDOW_HEIGHT) * 95)
             gradient.set_at((0, y), (10, 10, 18, alpha)) # Dark blue-black night filter
-        gradient_scaled = pygame.transform.scale(gradient, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        gradient_scaled = pygame.transform.scale(gradient, (settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT))
         bg_img.blit(gradient_scaled, (0, 0))
         IMAGES['bg'] = bg_img
     else:
         # Fallback
-        surf = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+        surf = pygame.Surface((settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT))
         surf.fill((10, 10, 18))
         IMAGES['bg'] = surf
         

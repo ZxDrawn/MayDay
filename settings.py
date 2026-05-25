@@ -57,3 +57,8 @@ DEATH_Y = WINDOW_HEIGHT + 200 # Fall below this to die
 
 # Developer Mode
 DEV_MODE = False
+
+# Audio & Custom settings
+MASTER_VOLUME = 0.5
+IS_FULLSCREEN = False
+SHOW_FPS = False
