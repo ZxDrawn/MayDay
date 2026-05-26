@@ -152,13 +152,19 @@ class Player(Entity):
             SOUNDS['light_attack'].play()
         
         # Create hitbox
-        hitbox_width = attack_range
-        hitbox_height = 40
+        # Let's extend the hitbox width and height generously so it covers space above the player's head and slightly inside the player's body
+        hitbox_width = attack_range + 20
+        hitbox_height = 80 # Much taller to cover overhead and ground-level hits
+        
+        # y_offset starts 30 pixels above the player's head to hit flying/swooping enemies easily
+        y_offset = self.rect.top - 30
         
         if self.facing_right:
-            self.attack_rect = pygame.Rect(self.rect.right, self.rect.centery - hitbox_height//2, hitbox_width, hitbox_height)
+            # Starts 10 pixels inside the player's body
+            self.attack_rect = pygame.Rect(self.rect.centerx - 10, y_offset, hitbox_width, hitbox_height)
         else:
-            self.attack_rect = pygame.Rect(self.rect.left - hitbox_width, self.rect.centery - hitbox_height//2, hitbox_width, hitbox_height)
+            # Starts 10 pixels inside the player's body going left
+            self.attack_rect = pygame.Rect(self.rect.centerx - hitbox_width + 10, y_offset, hitbox_width, hitbox_height)
             
         # Check enemy collisions
         for enemy in enemies:
