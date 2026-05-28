@@ -225,15 +225,18 @@ class UI:
                 "title": "--- RELATÓRIO HISTÓRICO: O ANO É 3247 ---",
                 "lines": [
                     "Há mais de mil anos, a humanidade foi forçada a abandonar a Terra após uma",
-                    "série de catástrofes ambientais que tornaram o planeta inabitável. A raça humana",
-                    "encontrou um novo lar em Nova Prime, um planeta distante onde reconstruiu sua civilização.",
+                    "série de catástrofes ambientais que tornaram o planeta inabitável.",
                     "",
-                    "Com o tempo, a Terra foi esquecida. Mas a ciência nunca parou de observá-la de longe,",
-                    "e o que os sensores captavam era perturbador: sem humanos, o planeta não morreu. Ele evoluiu.",
+                    "A raça humana encontrou um novo lar em Nova Prime, um planeta distante",
+                    "onde reconstruiu a sua civilização.",
+                    "",
+                    "Com o tempo, a Terra foi esquecida. Mas a ciência nunca parou de observá-la",
+                    "de longe, e o que os sensores captavam era perturbador: sem humanos,",
+                    "o planeta não morreu. Ele evoluiu.",
                     "",
                     "Em mil anos, a fauna passou por mutações aceleradas e imprevisíveis.",
-                    "Cada criatura se tornou maior, mais rápida, mais letal.",
-                    "Como se a natureza tivesse decidido que nunca mais seria dominada."
+                    "Cada criatura se tornou maior, mais rápida e muito mais letal.",
+                    "Como se a própria natureza tivesse decidido que nunca mais seria dominada."
                 ],
                 "footer": "[ CLIQUE OU ESPAÇO PARA PROSSEGUIR ]  (Etapa 1/4)"
             },
@@ -245,10 +248,10 @@ class UI:
                     "à Terra para coletar dados científicos sobre o planeta.",
                     "",
                     "A tripulação era composta por cinco Rangers altamente treinados,",
-                    "os melhores que Nova Prime tinha a oferecer.",
+                    "os melhores soldados que Nova Prime tinha a oferecer.",
                     "",
                     "Eles estavam preparados para enfrentar o desconhecido...",
-                    "Mas o planeta também estava esperando por eles."
+                    "Mas o planeta também estava armado e esperando por eles."
                 ],
                 "footer": "[ CLIQUE OU ESPAÇO PARA PROSSEGUIR ]  (Etapa 2/4)"
             },
@@ -256,13 +259,14 @@ class UI:
             {
                 "title": "--- O IMPACTO E A QUEDA ---",
                 "lines": [
-                    "Durante a entrada na atmosfera, a nave foi atingida por uma tempestade de detritos orbitais",
-                    "e se partiu ao meio de forma catastrófica.",
+                    "Durante a entrada na atmosfera, a nave foi atingida por uma tempestade",
+                    "de detritos orbitais e se partiu ao meio de forma catastrófica.",
                     "",
-                    "A seção traseira caiu em uma região de selva densa e inexplorada.",
-                    "A seção dianteira, com o sinalizador de resgate a bordo, despencou 15 quilômetros adiante.",
+                    "A seção traseira caiu em uma região de selva densa e perigosa.",
+                    "A seção dianteira, com o sinalizador de resgate a bordo, despencou",
+                    "15 quilômetros de distância adiante.",
                     "",
-                    "Dos cinco tripulantes, apenas um sobreviveu ao impacto do impacto.",
+                    "Dos cinco tripulantes, apenas um único sobreviveu ao impacto.",
                     "",
                     "VOCÊ."
                 ],
@@ -270,14 +274,16 @@ class UI:
             },
             # Stage 3
             {
-                "title": "--- DIÁRIO DE BORDO: SGT. KAEL VOSS ---",
+                "title": "--- DIÁRIO DE SOBREVIVÊNCIA ---",
                 "lines": [
-                    "Seu nome é Sgt. Kael Voss. Você está sozinho, ferido, sem comunicação e sem equipamento pesado.",
+                    "Seu nome é Sgt. Kael Voss. Você está sozinho, ferido,",
+                    "sem comunicação e sem qualquer tipo de equipamento pesado.",
                     "",
-                    "A única chance de chamar resgate e sair vivo deste planeta é chegar",
-                    "até o sinalizador na seção dianteira da nave e ativá-lo.",
+                    "A única chance de chamar o resgate e sair vivo deste planeta",
+                    "é chegar até o sinalizador na seção dianteira da nave e ativá-lo.",
                     "",
-                    "15 QUILÔMETROS DE SELVA EVOLUÍDA PARA MATAR TE SEPARAM DA SOBREVIVÊNCIA."
+                    "15 QUILÔMETROS DE SELVA EVOLUÍDA PARA MATAR",
+                    "SEPARAM VOCÊ DA SOBREVIVÊNCIA."
                 ],
                 "footer": "[ CLIQUE OU ESPAÇO PARA INICIAR A MISSÃO ]  (Etapa 4/4)"
             }
@@ -309,12 +315,12 @@ class UI:
         surface.blit(title_surf, title_surf.get_rect(center=(w//2, h//2 - 230)))
         
         # Draw Lines
-        y = h//2 - 165
+        y = h//2 - 180
         for line in current["lines"]:
-            # Custom font and color rules for highlights
-            if line == "VOCÊ." or "15 QUILÔMETROS" in line:
+            # Custom font and color rules for highlights to prevent text overflow
+            if line == "VOCÊ." or "15 QUILÔMETROS" in line or "SEPARAM VOCÊ" in line:
                 color = (231, 111, 81) # Warning Red
-                font = self.sec_title_font
+                font = self.subtitle_font # Size 30 subtitle font, extremely readable and safe
             else:
                 color = COLOR_TEXT
                 font = self.text_font
@@ -322,7 +328,7 @@ class UI:
             text_surf = font.render(line, True, color)
             text_rect = text_surf.get_rect(center=(w//2, y))
             surface.blit(text_surf, text_rect)
-            y += 38
+            y += 32
             
         # Draw Footer instruction with glow color pulsing
         import math
