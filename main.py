@@ -75,6 +75,7 @@ def main():
 
     state = "MENU" # MENU, STORY, PLAYING, GAME_OVER, VICTORY, SETTINGS, PAUSED
     settings_back_state = "MENU"
+    story_stage = 0
     ui = UI()
 
     player = None
@@ -138,6 +139,7 @@ def main():
                     clicked = ui.get_menu_click(mouse_pos)
                     if clicked == "INICIAR MISSÃO":
                         state = "STORY"
+                        story_stage = 0
                     elif clicked == "CONFIGURAÇÕES":
                         state = "SETTINGS"
                         settings_back_state = "MENU"
@@ -159,8 +161,11 @@ def main():
                         state = "MENU"
                         stop_bgm()
                 elif state == "STORY":
-                    start_game()
-                    state = "PLAYING"
+                    if story_stage < 3:
+                        story_stage += 1
+                    else:
+                        start_game()
+                        state = "PLAYING"
                 elif state == "GAME_OVER":
                     clicked = ui.get_game_over_click(mouse_pos)
                     if clicked == "TENTAR NOVAMENTE":
@@ -275,9 +280,12 @@ def main():
                     dragging = False
 
             if event.type == pygame.KEYDOWN:
-                if state == "STORY" and event.key == pygame.K_SPACE:
-                    start_game()
-                    state = "PLAYING"
+                if state == "STORY" and event.key in (pygame.K_SPACE, pygame.K_RETURN, pygame.K_KP_ENTER):
+                    if story_stage < 3:
+                        story_stage += 1
+                    else:
+                        start_game()
+                        state = "PLAYING"
                 # Quick respawn from checkpoint for testing/gameplay
                 if state == "GAME_OVER" and event.key == pygame.K_r:
                     start_game(load_from_checkpoint=True)
@@ -343,7 +351,7 @@ def main():
             ui.draw_settings(screen)
             
         elif state == "STORY":
-            ui.draw_story(screen)
+            ui.draw_story(screen, story_stage)
             
         elif state == "PLAYING" or state == "PAUSED":
             if state == "PLAYING":

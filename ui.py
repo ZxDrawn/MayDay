@@ -214,36 +214,127 @@ class UI:
         # Navigation Buttons at bottom
         self.setting_rects["VOLTAR"] = self.draw_button(surface, "SALVAR E VOLTAR", w//2, h//2 + 200, 320, 50, mouse_pos)
 
-    def draw_story(self, surface):
+    def draw_story(self, surface, stage=0):
         w, h = settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT
         surface.fill((10, 10, 15))
         self.draw_grid_effect(surface)
         
-        story = [
-            "O ano é 3247. Há mais de mil anos, a humanidade abandonou a Terra.",
-            "A fauna passou por mutações aceleradas e imprevisíveis.",
-            "A nave MAYDAY-7 foi atingida por detritos e partiu ao meio.",
-            "Apenas você, Sgt. Kael Voss, sobreviveu ao impacto.",
-            "",
-            "15 quilômetros de selva evoluída para matar te separam da sobrevivência.",
-            "Chegue ao sinalizador na seção dianteira da nave.",
-            "",
-            "(Clique ou pressione Espaço para continuar)"
+        stages_content = [
+            # Stage 0
+            {
+                "title": "--- RELATÓRIO HISTÓRICO: O ANO É 3247 ---",
+                "lines": [
+                    "Há mais de mil anos, a humanidade foi forçada a abandonar a Terra após uma",
+                    "série de catástrofes ambientais que tornaram o planeta inabitável. A raça humana",
+                    "encontrou um novo lar em Nova Prime, um planeta distante onde reconstruiu sua civilização.",
+                    "",
+                    "Com o tempo, a Terra foi esquecida. Mas a ciência nunca parou de observá-la de longe,",
+                    "e o que os sensores captavam era perturbador: sem humanos, o planeta não morreu. Ele evoluiu.",
+                    "",
+                    "Em mil anos, a fauna passou por mutações aceleradas e imprevisíveis.",
+                    "Cada criatura se tornou maior, mais rápida, mais letal.",
+                    "Como se a natureza tivesse decidido que nunca mais seria dominada."
+                ],
+                "footer": "[ CLIQUE OU ESPAÇO PARA PROSSEGUIR ]  (Etapa 1/4)"
+            },
+            # Stage 1
+            {
+                "title": "--- A MISSÃO EXPLORATÓRIA: MAYDAY-7 ---",
+                "lines": [
+                    "A nave de reconhecimento MAYDAY-7 foi enviada em missão de exploração",
+                    "à Terra para coletar dados científicos sobre o planeta.",
+                    "",
+                    "A tripulação era composta por cinco Rangers altamente treinados,",
+                    "os melhores que Nova Prime tinha a oferecer.",
+                    "",
+                    "Eles estavam preparados para enfrentar o desconhecido...",
+                    "Mas o planeta também estava esperando por eles."
+                ],
+                "footer": "[ CLIQUE OU ESPAÇO PARA PROSSEGUIR ]  (Etapa 2/4)"
+            },
+            # Stage 2
+            {
+                "title": "--- O IMPACTO E A QUEDA ---",
+                "lines": [
+                    "Durante a entrada na atmosfera, a nave foi atingida por uma tempestade de detritos orbitais",
+                    "e se partiu ao meio de forma catastrófica.",
+                    "",
+                    "A seção traseira caiu em uma região de selva densa e inexplorada.",
+                    "A seção dianteira, com o sinalizador de resgate a bordo, despencou 15 quilômetros adiante.",
+                    "",
+                    "Dos cinco tripulantes, apenas um sobreviveu ao impacto do impacto.",
+                    "",
+                    "VOCÊ."
+                ],
+                "footer": "[ CLIQUE OU ESPAÇO PARA PROSSEGUIR ]  (Etapa 3/4)"
+            },
+            # Stage 3
+            {
+                "title": "--- DIÁRIO DE BORDO: SGT. KAEL VOSS ---",
+                "lines": [
+                    "Seu nome é Sgt. Kael Voss. Você está sozinho, ferido, sem comunicação e sem equipamento pesado.",
+                    "",
+                    "A única chance de chamar resgate e sair vivo deste planeta é chegar",
+                    "até o sinalizador na seção dianteira da nave e ativá-lo.",
+                    "",
+                    "15 QUILÔMETROS DE SELVA EVOLUÍDA PARA MATAR TE SEPARAM DA SOBREVIVÊNCIA."
+                ],
+                "footer": "[ CLIQUE OU ESPAÇO PARA INICIAR A MISSÃO ]  (Etapa 4/4)"
+            }
         ]
         
-        # Styled Story panel
-        panel_surf = pygame.Surface((900, 520), pygame.SRCALPHA)
-        pygame.draw.rect(panel_surf, (15, 20, 32, 210), (0, 0, 900, 520), border_radius=12)
-        pygame.draw.rect(panel_surf, (0, 180, 216, 45), (0, 0, 900, 520), 1, border_radius=12)
+        stage = max(0, min(len(stages_content) - 1, stage))
+        current = stages_content[stage]
+        
+        # Styled Story panel (generous 1020x570 dimension)
+        panel_w, panel_h = 1020, 570
+        panel_surf = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+        pygame.draw.rect(panel_surf, (15, 20, 32, 225), (0, 0, panel_w, panel_h), border_radius=12)
+        pygame.draw.rect(panel_surf, (0, 180, 216, 60), (0, 0, panel_w, panel_h), 2, border_radius=12)
+        
+        # Tech corner accents
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, 20), (0, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, 0), (20, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (panel_w, 20), (panel_w, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (panel_w, 0), (panel_w - 20, 0), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, panel_h - 20), (0, panel_h), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (0, panel_h), (20, panel_h), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (panel_w, panel_h - 20), (panel_w, panel_h), 4)
+        pygame.draw.line(panel_surf, (72, 202, 228), (panel_w, panel_h), (panel_w - 20, panel_h), 4)
+        
         surface.blit(panel_surf, panel_surf.get_rect(center=(w//2, h//2)))
         
-        y = h//2 - 200
-        for line in story:
-            color = (255, 255, 100) if "Clique" in line else COLOR_TEXT
-            text_surf = self.text_font.render(line, True, color)
+        # Draw Title (Geometric Orbitron font)
+        title_surf = self.sec_title_font.render(current["title"], True, (0, 180, 216))
+        surface.blit(title_surf, title_surf.get_rect(center=(w//2, h//2 - 230)))
+        
+        # Draw Lines
+        y = h//2 - 165
+        for line in current["lines"]:
+            # Custom font and color rules for highlights
+            if line == "VOCÊ." or "15 QUILÔMETROS" in line:
+                color = (231, 111, 81) # Warning Red
+                font = self.sec_title_font
+            else:
+                color = COLOR_TEXT
+                font = self.text_font
+                
+            text_surf = font.render(line, True, color)
             text_rect = text_surf.get_rect(center=(w//2, y))
             surface.blit(text_surf, text_rect)
-            y += 48
+            y += 38
+            
+        # Draw Footer instruction with glow color pulsing
+        import math
+        pulse = 170 + int(math.sin(pygame.time.get_ticks() * 0.007) * 85)
+        
+        if stage == 3:
+            footer_color = (pulse, 195, 0) # Pulsing Yellow
+        else:
+            footer_color = (0, pulse, 216) # Pulsing Cyan
+            
+        footer_surf = self.text_font.render(current["footer"], True, footer_color)
+        surface.blit(footer_surf, footer_surf.get_rect(center=(w//2, h//2 + 240)))
 
     def draw_hud(self, surface, player):
         # Premium Cyberpunk Cockpit HUD
