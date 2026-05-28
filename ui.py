@@ -451,13 +451,15 @@ class UI:
         surface.blit(title, title.get_rect(center=(w//2, h//2 - 150)))
         
         msg1 = self.text_font.render('"O sinal foi enviado. Nas estrelas, alguém ouviu."', True, COLOR_TEXT)
-        surface.blit(msg1, msg1.get_rect(center=(w//2, h//2 - 60)))
+        surface.blit(msg1, msg1.get_rect(center=(w//2, h//2 - 65)))
         
-        msg2 = self.text_font.render('"Pela primeira vez em mil anos, um humano sobreviveu à Terra — e ela ainda não sabe o que fazer com isso."', True, COLOR_TEXT)
-        surface.blit(msg2, msg2.get_rect(center=(w//2, h//2 - 10)))
+        msg2_part1 = self.text_font.render('"Pela primeira vez em mil anos, um humano sobreviveu à Terra —"', True, COLOR_TEXT)
+        msg2_part2 = self.text_font.render('e ela ainda não sabe o que fazer com isso."', True, COLOR_TEXT)
+        surface.blit(msg2_part1, msg2_part1.get_rect(center=(w//2, h//2 - 15)))
+        surface.blit(msg2_part2, msg2_part2.get_rect(center=(w//2, h//2 + 25)))
         
         mouse_pos = pygame.mouse.get_pos()
-        self.vic_rect = self.draw_button(surface, "VOLTAR AO MENU", w//2, h//2 + 110, 320, 50, mouse_pos)
+        self.vic_rect = self.draw_button(surface, "VOLTAR AO MENU", w//2, h//2 + 115, 320, 50, mouse_pos)
 
     def draw_editor_hud(self, surface, selected_entity, selection_type, offsets_dict, save_success_timer=0):
         w, h = settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT

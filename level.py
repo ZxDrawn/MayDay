@@ -178,9 +178,8 @@ def generate_level():
     platforms.add(Platform(7100, 250, 300, 500))
     monkeys.add(import_enemy("monkey", 7200, 210))
     
-    # Final Checkpoint
+    # Final Platform (Beacon Area)
     platforms.add(Platform(7620, 380, 600, 400))
-    checkpoints.add(Checkpoint(7720, 252, 5, "O sinalizador está perto. Não deixe a Terra saber disso."))
     
     # The Beacon
     beacon = Beacon(8020, 260)
