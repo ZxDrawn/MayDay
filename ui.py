@@ -121,10 +121,7 @@ class UI:
         title_rect = title_surf.get_rect(center=(w//2, h//2 - 200))
         surface.blit(title_surf, title_rect)
         
-        # Subtitle
-        sub_surf = self.subtitle_font.render('"A Terra não te esqueceu. Ela só evoluiu para te matar."', True, (0, 180, 216))
-        sub_rect = sub_surf.get_rect(center=(w//2, h//2 - 120))
-        surface.blit(sub_surf, sub_rect)
+
         
         # Buttons
         buttons = [
